@@ -49,7 +49,7 @@ while  has_remainder :
         # get header
         header = big_csv_reader.next()
     
-        print header
+        #print header
     
         has_remainder = False
         with open(id_out_file, mode='w') as id :
