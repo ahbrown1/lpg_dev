@@ -1,0 +1,11 @@
+typescript
+?
+??
+*.pyc
+*.swo
+*.swp
+*.zip
+*.tgz
+*.tar
+*.csv
+~*
