@@ -16,17 +16,17 @@ import argparse
 import tempfile
 import os
 
+dflt_backlog = os.getenv('LPG_BACKLOG', './backlog/')
 parser = argparse.ArgumentParser(description='Preprocess ID inpu .')
 
 parser.add_argument('--max_records', type=int, help='Max records for ID import', default=250)
+parser.add_argument('--backlog', type=str, help='backlog storage dir', default=dflt_backlog )
 parser.add_argument('bigfile', type=str, help='name of the big fileD' )
 
 args = parser.parse_args()
 
-import pdb; pdb.set_trace()
 
-# this should've been moved out
-#assert( not os.path.exists(args.idout))
+assert( os.path.isdir(args.backlog))
 
 has_remainder = True
 while  has_remainder :
@@ -34,7 +34,7 @@ while  has_remainder :
     id_out_file = None
     
     for i in range(1000):
-       path = "id_out.%03d.csv"%i
+       path = os.path.join(args.backlog,"id_out.%03d.csv"%i)
        if not os.path.exists(path) :
            id_out_file = path
            break
@@ -66,7 +66,6 @@ while  has_remainder :
                     else :
                         id_writer.writerow(record) 
      
-        #import pdb; pdb.set_trace()
         # ID import file is complete.
         # overwrite remainder to the big file for the next run
         if has_remainder :

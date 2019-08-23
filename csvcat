@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# concatenate multipe CSV files
+
+set -eu
+
+if [ $# -lt 1 ]; then
+        echo "Usage: $0  file [ file ... ]"
+        exit 1
+fi
+
+# cat the 1st file (Headers included )
+cat $1
+shift
+
+
+# append the remaining (less the header)
+
+while (($#)); do
+   tail -n +2 $1
+   shift
+done
+
+
+
+
