@@ -1,0 +1,77 @@
+#!/usr/bin/env python
+'''
+   Take as inputs :
+   - the big file :  a cat of all processed CVS files in preferred priority order
+     Ex: A cvscat <Out of State Owners>.csv <In State Owners>.csv  > county.csv
+   - the maximum size of the desired ID input file
+   - the name of the (to be created) ID input file
+
+   Results:
+    - the ID input file consisting of at most, the size limit
+    - the 'big file' now contains only records that are not in the ID input file
+      it is deleted if there are no remaining records
+'''
+import csv
+import argparse
+import tempfile
+import os
+import sys
+
+seenb4 = {}
+ADDR_START = 8
+ADDR_END = 12
+
+def uniq(record) :
+   u = False 
+   rsl = ''
+   for k in range( ADDR_START, ADDR_END ) :
+      r = record[k]
+      r = r.replace(' ', '')
+      r = r.replace('.', '')
+      r = r.lower()
+      rsl += r
+   #print rsl
+   if not  rsl in seenb4 :
+      u = True
+      seenb4[rsl] = 0
+   else:
+      print "DUP: %s"%(' '.join(record),)
+   return u
+
+
+
+parser = argparse.ArgumentParser(description='Preprocess ID inpu .')
+
+parser.add_argument('--ddfile', type=str, help='deduped file', default=None )
+parser.add_argument('infile', type=str, help='file to dedup' )
+
+args = parser.parse_args()
+
+
+remainder_file = tempfile.mktemp()
+rc = 0
+with open( args.infile, 'r' ) as big_csv :
+    big_csv_reader = csv.reader(big_csv)
+    header = big_csv_reader.next()
+    with open( remainder_file, 'w' ) as rf :
+        id_writer = csv.writer(rf)
+        id_writer.writerow(header)
+        for (count, record) in enumerate(big_csv_reader) :
+            rc += 1
+            #print record      
+            if uniq(record) :
+                id_writer.writerow(record)
+                
+                pass
+
+print "Found %d unique records out of %d"%(len(seenb4), rc )
+
+if args.ddfile is not None :
+   ddfile = args.ddfile
+else :
+   ddfile = args.infile   # change in-place
+    
+os.rename(remainder_file, ddfile)   # (needs an extra trick for MSW)
+sys.exit(0)
+    
+
