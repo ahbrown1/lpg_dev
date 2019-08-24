@@ -15,6 +15,7 @@ import csv
 import argparse
 import tempfile
 import os
+import  sys, stat
 
 dflt_backlog = os.getenv('LPG_BACKLOG', './backlog/')
 parser = argparse.ArgumentParser(description='Preprocess ID inpu .')
@@ -27,6 +28,8 @@ args = parser.parse_args()
 
 
 assert( os.path.isdir(args.backlog))
+
+#import pdb; pdb.set_trace()
 
 has_remainder = True
 while  has_remainder :
@@ -44,32 +47,32 @@ while  has_remainder :
 
 
     with open( args.bigfile, 'r' ) as big_csv :
-        big_csv_reader = csv.reader(big_csv)
     
         # get header
-        header = big_csv_reader.next()
+        header = big_csv.readline()
     
         #print header
     
         has_remainder = False
         with open(id_out_file, mode='w') as id :
-            id_writer = csv.writer(id)
-            id_writer.writerow(header)
+            id.write(header)
             with open(remainder_file, mode='w') as remaining:
-                remainder_writer = csv.writer(remaining)
-                remainder_writer.writerow(header)
-    
-                for (count, record) in enumerate(big_csv_reader) :
+                remaining.write(header)
+   
+                for (count, record) in enumerate(big_csv) :
                     if count >= args.max_records :
                         has_remainder = True
-                        remainder_writer.writerow(record) 
+                        remaining.write(record)
                     else :
-                        id_writer.writerow(record) 
-     
+                        id.write(record)
+    
+        os.chmod(id_out_file, 0o444)   # set to read-only
+ 
         # ID import file is complete.
         # overwrite remainder to the big file for the next run
+        
         if has_remainder :
-            os.rename(remainder_file, args.bigfile)   # (needs an extra trick for MSW)
+            os.rename(remainder_file, args.bigfile)   # (note: needs an extra trick for MSW)
         else:
             os.remove( remainder_file )   # nothing but a header there 
-            os.remove( args.bigfile )   # nothing but a hearder there 
+            os.remove( args.bigfile )   # nothing usefulr there 
