@@ -49,7 +49,7 @@ with open(path, mode='w') as id :
         header_list.append(TAG)
         header = ','.join(header_list) 
         #print header
-        id.write(header)
+        id.write("%s\n"%header)
     
         reader = csv.reader(csvfile, delimiter=',')
         batch = args.batch_start
