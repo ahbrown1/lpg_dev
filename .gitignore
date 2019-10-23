@@ -8,5 +8,6 @@ typescript
 *.tgz
 *.tar
 *.csv
+*.xls
 backlog/
 ~*

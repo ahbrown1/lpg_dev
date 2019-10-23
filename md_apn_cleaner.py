@@ -10,7 +10,7 @@ re_short_apn = re.compile('^(\d+)\-(\d+)$')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='remove extraneous numbers from MD APN')
-    parser.add_argument('--outfile', help='output file; stdout if not given', default='Y')
+    parser.add_argument('--outfile', help='output file; stdout if not given', default='Y.csv')
     parser.add_argument('infile', help='input file',)
     #parser.add_argument('files', metavar='FILE', nargs='*', help='files to read, if empty, stdin is used')
     args = parser.parse_args()
@@ -27,7 +27,8 @@ if __name__ == '__main__':
         
         with open( args.infile, 'r') as in_csv :
             # get header
-            header = in_csv.readline()
+            header = in_csv.readline().strip()
+            out_csv.write("%s\n"%header)
    
             # create header lookup dict
             lookup = {}
@@ -48,8 +49,10 @@ if __name__ == '__main__':
                 if short_apn:
                     apn = "%02d-%s"%(int(short_apn.group(1)), short_apn.group(2))
                 else :
-                    print 'Bad APN format on line %d'%(lineno +1,)
+                    raise Exception('Bad APN format on line %d'%(lineno +1,))
                 print apn
+                row[lookup['APN']] = apn
+                writer.writerow(row)
    
 
         
