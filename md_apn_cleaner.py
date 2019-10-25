@@ -7,19 +7,15 @@ import re
 
 re_long_apn = re.compile('^(\d+)\-\d+\-(\d+)$')
 re_short_apn = re.compile('^(\d+)\-(\d+)$')
+DFLT_APN_NAME = 'APN'
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='remove extraneous numbers from MD APN')
-    parser.add_argument('--outfile', help='output file; stdout if not given', default='Y.csv')
-    parser.add_argument('infile', help='input file',)
-    #parser.add_argument('files', metavar='FILE', nargs='*', help='files to read, if empty, stdin is used')
+    parser.add_argument('--outfile', help='output file; stdout if not given', default='/dev/stdout')
+    parser.add_argument('--infile', help='input file; stdin if not given', default='/dev/stdin')
+    parser.add_argument('--apn-name', dest='apn_name', help='APN field name', default=DFLT_APN_NAME)
     args = parser.parse_args()
-
-    # If you would call fileinput.input() without files it would try to process all arguments.
-    # We pass '-' as only file when argparse got no files which will cause fileinput to read from stdin
-    #for line in fileinput.input(files=args.files if len(args.files) > 0 else ('-', )):
-    #for line in fileinput.input(files=args.files):
-    #    print(line)
 
 
     with open(args.outfile, mode='w') as  out_csv :
@@ -33,6 +29,8 @@ if __name__ == '__main__':
             # create header lookup dict
             lookup = {}
             header_list = header.split(',')
+            assert(args.apn_name in header_list)
+
             for pos, name in enumerate(header_list) :
                 lookup[name] = pos
 
@@ -40,18 +38,20 @@ if __name__ == '__main__':
             reader = csv.reader(in_csv, delimiter=',')
             for  lineno, loop_row in enumerate(reader):
                 row = copy.copy(loop_row)
-                apn = row[lookup['APN']]
+                apn = row[lookup[args.apn_name]]
                 long_apn = re_long_apn.match(apn)
                 if long_apn:
+                    # remove intermediate digits between 2 dashes
+                    # (doesn't play well with most lookups)
                     apn = "%02d-%s"%(int(long_apn.group(1)), long_apn.group(2))
 
                 short_apn = re_short_apn.match(apn)
                 if short_apn:
+                    # make fiels before leading dash 2 digits
                     apn = "%02d-%s"%(int(short_apn.group(1)), short_apn.group(2))
                 else :
                     raise Exception('Bad APN format on line %d'%(lineno +1,))
-                print apn
-                row[lookup['APN']] = apn
+                row[lookup[args.apn_name]] = apn
                 writer.writerow(row)
    
 

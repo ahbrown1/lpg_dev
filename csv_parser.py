@@ -9,10 +9,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='parse column(s) from CSV file')
     parser.add_argument('--outfile', help='output file; stdout if not given', default='/dev/stdout')
     parser.add_argument('--infile', help='input file',default='/dev/stdin')
-    parser.add_argument('--no-header', type=bool, default=False, dest='no_header',
-help='skip header in output')
-    parser.add_argument('cnames',  type=str, nargs='+',
-                   help='name(s) of header columns to parse')
+    parser.add_argument('--no-header', action="store_true", default=False, dest='no_header', help='skip headers in output')
+    parser.add_argument('cnames',  type=str, nargs='+', help='name(s) of header columns to parse')
     args = parser.parse_args()
 
 
@@ -31,7 +29,6 @@ help='skip header in output')
                 lookup[name] = pos
 
             # print the output header line
-            #import pdb; pdb.set_trace()
             if not args.no_header :
                csv_writer.writerow(args.cnames)
                 
