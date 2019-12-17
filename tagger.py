@@ -21,12 +21,12 @@ TAG='Tags'
 dflt_backlog = os.getenv('LPG_BACKLOG', './backlog/')
 parser = argparse.ArgumentParser(description='Preprocess ID input.')
 
-parser.add_argument('--batch_size', type=int, help='Max records per tagged batch', default=250)
+parser.add_argument('--batch_size', type=int, help='Max records per tagged batch', default=300)
 parser.add_argument('--batch_start', type=int, help='starting tag index', default=0)
 parser.add_argument('--tag_prefix', type=str, help='batch name prefix', default='batch_')
 parser.add_argument('--backlog', type=str, help='backlog storage dir', default=dflt_backlog )
 parser.add_argument('--outfile', type=str, help='output file', default='tagged.csv' )
-parser.add_argument('infile', type=str, help='name of the big fileD' )
+parser.add_argument('--infile', type=str, help='name of the big file', default='/dev/stdin' )
 
 args = parser.parse_args()
 
@@ -34,7 +34,7 @@ args = parser.parse_args()
 
 path = os.path.join(args.backlog, args.outfile)
 assert( os.path.isdir(args.backlog))
-assert(not os.path.exists(path) )
+#assert(not os.path.exists(path) )
 
 with open(path, mode='w') as id :
     writer = csv.writer(id, delimiter=',')
@@ -64,7 +64,7 @@ with open(path, mode='w') as id :
             writer.writerow(row)
 
             index +=1 
-            if index > args.batch_size :
+            if index >= args.batch_size :
                 index = 0
                 batch += 1
 print "Done."

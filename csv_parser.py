@@ -45,7 +45,7 @@ if __name__ == "__main__":
 
             for pos, name in enumerate(header_list):
                 lookup[name] = pos
-            print(lookup)
+            #print(lookup)
             #print(lookup['"p_state"'])
             # print the output header line
             if not args.no_header:
