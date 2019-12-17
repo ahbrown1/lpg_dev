@@ -10,4 +10,5 @@ typescript
 *.csv
 *.xls
 backlog/
+*.pdf
 ~*
